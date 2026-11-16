@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="900">
+    <title>Room 9.156 Availability & Timetable</title>
+    <style>
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+        .wrapper {
+            max-width: 98vw;
+            margin: auto;
+            background: #ffffff;
+            padding: 18px 22px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+        h1 { 
+            font-size: 1.5rem; 
+            margin: 0 0 2px 0; 
+            color: #0f172a;
+            letter-spacing: -0.01em;
+        }
+        .sub { 
+            color: #64748b; 
+            font-size: 0.9rem; 
+            font-weight: 500;
+        }
+        .clock {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0284c7;
+        }
+        .schedule-container {
+            display: grid;
+            grid-template-columns: 68px repeat(5, 1fr);
+            gap: 12px;
+        }
+        .time-sidebar {
+            display: flex;
+            flex-direction: column;
+            padding-top: 41px;
+        }
+        .time-label {
+            height: 75px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: right;
+            padding-right: 10px;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
+        .day-col {
+            background: #f8fafc;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+        }
+        .day-col.today-col {
+            border-color: #94a3b8;
+        }
+        .day-header {
+            background: #e2e8f0;
+            padding: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1e293b;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .day-col.today-col .day-header {
+            background: #dbeafe;
+            color: #1e40af;
+            border-bottom-color: #93c5fd;
+        }
+        .timeline-body {
+            position: relative;
+            background-color: #ffffff;
+        }
+        .hour-slot {
+            height: 75px;
+            border-bottom: 1px solid #e2e8f0;
+            box-sizing: border-box;
+        }
+        .hour-slot:last-child {
+            border-bottom: none;
+        }
+        .event-block {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            background: #e0f2fe;
+            color: #0c4a6e;
+            border: 1.5px solid #38bdf8;
+            border-left: 5px solid #0284c7;
+            border-radius: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            z-index: 2;
+        }
+        .ev-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .ev-title { 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+            line-height: 1.2;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .type-badge {
+            background: #ffffff;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .ev-mod-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ev-subtitle { 
+            font-size: 0.75rem; 
+            color: #475569;
+            margin-top: 2px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .current-time-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ef4444;
+            z-index: 10;
+            pointer-events: none;
+            box-shadow: 0 1px 3px rgba(239, 68, 68, 0.4);
+        }
+        .current-time-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        const HOUR_HEIGHT = 75;
+        const START_HOUR = 9;
+        const END_HOUR = 18;
+
+        function updateClockAndTimeLine() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('live-clock').innerText = `${hours}:${minutes}:${seconds}`;
+
+            // Convert JS getDay() (0=Sun..6=Sat) to 0=Mon..4=Fri
+            const dayIdx = now.getDay() - 1;
+            const currentDecimalHour = now.getHours() + (now.getMinutes() / 60) + (now.getSeconds() / 3600);
+
+            document.querySelectorAll('.day-col').forEach(col => {
+                const colDay = parseInt(col.getAttribute('data-day'), 10);
+                if (colDay === dayIdx) {
+                    col.classList.add('today-col');
+                } else {
+                    col.classList.remove('today-col');
+                }
+            });
+
+            let marker = document.getElementById('current-time-line');
+            const todayTimeline = document.querySelector(`.day-col[data-day="${dayIdx}"] .timeline-body`);
+
+            if (todayTimeline && currentDecimalHour >= START_HOUR && currentDecimalHour <= END_HOUR) {
+                if (!marker) {
+                    marker = document.createElement('div');
+                    marker.id = 'current-time-line';
+                    marker.className = 'current-time-line';
+                }
+                if (marker.parentElement !== todayTimeline) {
+                    todayTimeline.appendChild(marker);
+                }
+                const topPx = (currentDecimalHour - START_HOUR) * HOUR_HEIGHT;
+                marker.style.top = `${topPx}px`;
+                marker.style.display = 'block';
+            } else if (marker) {
+                marker.style.display = 'none';
+            }
+        }
+
+        setInterval(updateClockAndTimeLine, 1000);
+        window.onload = updateClockAndTimeLine;
+    </script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header-container">
+            <div>
+                <h1>Room 9.156 Availability & Timetable</h1>
+                <div class="sub">School of Earth and Environment — 16 Nov – 20 Nov 2026</div>
+            </div>
+            <div id="live-clock" class="clock">00:00:00</div>
+        </div>
+        
+        <div class="schedule-container">
+            <div class="time-sidebar">
+                <div class="time-label">09:00</div><div class="time-label">10:00</div><div class="time-label">11:00</div><div class="time-label">12:00</div><div class="time-label">13:00</div><div class="time-label">14:00</div><div class="time-label">15:00</div><div class="time-label">16:00</div><div class="time-label">17:00</div>
+            </div>
+            
+    <div class="day-col" data-day="0">
+        <div class="day-header">Monday</div>
+        <div class="timeline-body" style="height: 675px;">
+            <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
+            
+        <div class="event-block" style="top: 2.0px; height: 221.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE5117M</div>
+                <span class="type-badge">Practical</span>
+            </div>
+            <div class="ev-mod-name" title="Comp Analysis Techniques">Comp Analysis Techniques</div>
+            <div class="ev-subtitle" title="Prof Phil Livermore">Prof Phil Livermore</div>
+        </div>
+        
+        </div>
+    </div>
+    
+    <div class="day-col" data-day="1">
+        <div class="day-header">Tuesday</div>
+        <div class="timeline-body" style="height: 675px;">
+            <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
+            
+        <div class="event-block" style="top: 452.0px; height: 146.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE3600</div>
+                <span class="type-badge">Workshop</span>
+            </div>
+            <div class="ev-mod-name" title="Ore Deposits & Exploitation">Ore Deposits & Exploitation</div>
+            <div class="ev-subtitle" title="Dr Taija Torvela">Dr Taija Torvela</div>
+        </div>
+        
+        </div>
+    </div>
+    
+    <div class="day-col" data-day="2">
+        <div class="day-header">Wednesday</div>
+        <div class="timeline-body" style="height: 675px;">
+            <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
+            
+        </div>
+    </div>
+    
+    <div class="day-col" data-day="3">
+        <div class="day-header">Thursday</div>
+        <div class="timeline-body" style="height: 675px;">
+            <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
+            
+        <div class="event-block" style="top: 77.0px; height: 146.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE2970</div>
+                <span class="type-badge">Practical</span>
+            </div>
+            <div class="ev-mod-name" title="Adv Skill for Env Geoscientist">Adv Skill for Env Geoscientist</div>
+            
+        </div>
+        
+        <div class="event-block" style="top: 377.0px; height: 146.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE5045M / SOEE5047M</div>
+                <span class="type-badge">Practical</span>
+            </div>
+            <div class="ev-mod-name" title="Rock Engineering / Rock Mechanics">Rock Engineering / Rock Mechanics</div>
+            <div class="ev-subtitle" title="Dr Mark Hildyard">Dr Mark Hildyard</div>
+        </div>
+        
+        </div>
+    </div>
+    
+    <div class="day-col" data-day="4">
+        <div class="day-header">Friday</div>
+        <div class="timeline-body" style="height: 675px;">
+            <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
+            
+        <div class="event-block" style="top: 77.0px; height: 146.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE2191</div>
+                <span class="type-badge">Practical</span>
+            </div>
+            <div class="ev-mod-name" title="Digital Data Analysis">Digital Data Analysis</div>
+            <div class="ev-subtitle" title="Prof Jurgen Neuberg">Prof Jurgen Neuberg</div>
+        </div>
+        
+        <div class="event-block" style="top: 377.0px; height: 146.0px;">
+            <div class="ev-header-row">
+                <div class="ev-title">SOEE3260</div>
+                <span class="type-badge">Practical</span>
+            </div>
+            <div class="ev-mod-name" title="Global Seismology">Global Seismology</div>
+            <div class="ev-subtitle" title="Dr Sebastian Rost">Dr Sebastian Rost</div>
+        </div>
+        
+        </div>
+    </div>
+    
+        </div>
+    </div>
+</body>
+</html>
