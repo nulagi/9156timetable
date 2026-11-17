@@ -5,90 +5,115 @@
     <meta http-equiv="refresh" content="900">
     <title>Room 9.156 Availability & Timetable</title>
     <style>
-        body {
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             background-color: #f1f5f9;
             color: #0f172a;
             font-family: system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 14px;
             box-sizing: border-box;
         }
         .wrapper {
-            max-width: 98vw;
-            margin: auto;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            margin: 0;
             background: #ffffff;
-            padding: 18px 22px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+            padding: 12px 16px;
+            border-radius: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none;
         }
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 12px;
+            padding-bottom: 8px;
+            flex-shrink: 0;
         }
         h1 { 
-            font-size: 1.5rem; 
+            font-size: 1.35rem; 
             margin: 0 0 2px 0; 
             color: #0f172a;
             letter-spacing: -0.01em;
         }
         .sub { 
             color: #64748b; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             font-weight: 500;
         }
         .clock {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 4px 12px;
+            border-radius: 6px;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: #0284c7;
         }
         .schedule-container {
             display: grid;
-            grid-template-columns: 68px repeat(5, 1fr);
-            gap: 12px;
+            grid-template-columns: 64px repeat(5, 1fr);
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
         }
         .time-sidebar {
             display: flex;
             flex-direction: column;
-            padding-top: 41px;
+            min-height: 0;
+        }
+        .time-header-spacer {
+            height: 39px;
+            flex-shrink: 0;
+            border-bottom: 1px solid transparent;
+        }
+        .time-labels-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         .time-label {
-            height: 75px;
-            font-size: 0.85rem;
-            color: #64748b;
-            text-align: right;
-            padding-right: 10px;
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding-right: 8px;
             box-sizing: border-box;
+            font-size: 0.8rem;
+            color: #64748b;
             font-weight: 600;
         }
         .day-col {
             background: #f8fafc;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
             border: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .day-col.today-col {
             border-color: #94a3b8;
         }
         .day-header {
             background: #e2e8f0;
-            padding: 10px;
+            padding: 8px 6px;
             text-align: center;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #1e293b;
             border-bottom: 1px solid #cbd5e1;
+            flex-shrink: 0;
         }
         .day-col.today-col .day-header {
             background: #dbeafe;
@@ -96,11 +121,15 @@
             border-bottom-color: #93c5fd;
         }
         .timeline-body {
+            flex: 1;
             position: relative;
             background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         .hour-slot {
-            height: 75px;
+            flex: 1;
             border-bottom: 1px solid #e2e8f0;
             box-sizing: border-box;
         }
@@ -109,14 +138,14 @@
         }
         .event-block {
             position: absolute;
-            left: 6px;
-            right: 6px;
+            left: 5px;
+            right: 5px;
             background: #e0f2fe;
             color: #0c4a6e;
             border: 1.5px solid #38bdf8;
             border-left: 5px solid #0284c7;
-            border-radius: 6px;
-            padding: 6px 10px;
+            border-radius: 5px;
+            padding: 5px 8px;
             box-sizing: border-box;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);
@@ -129,11 +158,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         .ev-title { 
             font-weight: 800; 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             line-height: 1.2;
             color: #0f172a;
             white-space: nowrap;
@@ -144,26 +173,26 @@
             background: #ffffff;
             color: #0369a1;
             border: 1px solid #bae6fd;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 4px;
+            padding: 1px 5px;
+            border-radius: 3px;
             text-transform: uppercase;
             flex-shrink: 0;
         }
         .ev-mod-name {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: #1e293b;
-            margin-top: 3px;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .ev-subtitle { 
-            font-size: 0.75rem; 
+            font-size: 0.7rem; 
             color: #475569;
-            margin-top: 2px; 
+            margin-top: 1px; 
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
@@ -183,8 +212,8 @@
             position: absolute;
             left: 0;
             top: -4px;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             background-color: #ef4444;
             border-radius: 50%;
             border: 2px solid #ffffff;
@@ -192,9 +221,9 @@
         }
     </style>
     <script>
-        const HOUR_HEIGHT = 75;
         const START_HOUR = 9;
         const END_HOUR = 18;
+        const TOTAL_HOURS = END_HOUR - START_HOUR;
 
         function updateClockAndTimeLine() {
             const now = new Date();
@@ -228,8 +257,8 @@
                 if (marker.parentElement !== todayTimeline) {
                     todayTimeline.appendChild(marker);
                 }
-                const topPx = (currentDecimalHour - START_HOUR) * HOUR_HEIGHT;
-                marker.style.top = `${topPx}px`;
+                const topPercent = ((currentDecimalHour - START_HOUR) / TOTAL_HOURS) * 100;
+                marker.style.top = `${topPercent}%`;
                 marker.style.display = 'block';
             } else if (marker) {
                 marker.style.display = 'none';
@@ -252,15 +281,18 @@
         
         <div class="schedule-container">
             <div class="time-sidebar">
-                <div class="time-label">09:00</div><div class="time-label">10:00</div><div class="time-label">11:00</div><div class="time-label">12:00</div><div class="time-label">13:00</div><div class="time-label">14:00</div><div class="time-label">15:00</div><div class="time-label">16:00</div><div class="time-label">17:00</div>
+                <div class="time-header-spacer"></div>
+                <div class="time-labels-body">
+                    <div class="time-label"><span>09:00</span></div><div class="time-label"><span>10:00</span></div><div class="time-label"><span>11:00</span></div><div class="time-label"><span>12:00</span></div><div class="time-label"><span>13:00</span></div><div class="time-label"><span>14:00</span></div><div class="time-label"><span>15:00</span></div><div class="time-label"><span>16:00</span></div><div class="time-label"><span>17:00</span></div>
+                </div>
             </div>
             
     <div class="day-col" data-day="0">
         <div class="day-header">Monday</div>
-        <div class="timeline-body" style="height: 675px;">
+        <div class="timeline-body">
             <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
             
-        <div class="event-block" style="top: 2.0px; height: 221.0px;">
+        <div class="event-block" style="top: calc(0.0% + 2px); height: calc(33.33333333333333% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE5117M</div>
                 <span class="type-badge">Practical</span>
@@ -274,10 +306,10 @@
     
     <div class="day-col" data-day="1">
         <div class="day-header">Tuesday</div>
-        <div class="timeline-body" style="height: 675px;">
+        <div class="timeline-body">
             <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
             
-        <div class="event-block" style="top: 452.0px; height: 146.0px;">
+        <div class="event-block" style="top: calc(66.66666666666666% + 2px); height: calc(22.22222222222222% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE3600</div>
                 <span class="type-badge">Workshop</span>
@@ -291,7 +323,7 @@
     
     <div class="day-col" data-day="2">
         <div class="day-header">Wednesday</div>
-        <div class="timeline-body" style="height: 675px;">
+        <div class="timeline-body">
             <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
             
         </div>
@@ -299,10 +331,10 @@
     
     <div class="day-col" data-day="3">
         <div class="day-header">Thursday</div>
-        <div class="timeline-body" style="height: 675px;">
+        <div class="timeline-body">
             <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
             
-        <div class="event-block" style="top: 77.0px; height: 146.0px;">
+        <div class="event-block" style="top: calc(11.11111111111111% + 2px); height: calc(22.22222222222222% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE2970</div>
                 <span class="type-badge">Practical</span>
@@ -311,7 +343,7 @@
             
         </div>
         
-        <div class="event-block" style="top: 377.0px; height: 146.0px;">
+        <div class="event-block" style="top: calc(55.55555555555556% + 2px); height: calc(22.22222222222222% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE5045M / SOEE5047M</div>
                 <span class="type-badge">Practical</span>
@@ -325,10 +357,10 @@
     
     <div class="day-col" data-day="4">
         <div class="day-header">Friday</div>
-        <div class="timeline-body" style="height: 675px;">
+        <div class="timeline-body">
             <div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div><div class="hour-slot"></div>
             
-        <div class="event-block" style="top: 77.0px; height: 146.0px;">
+        <div class="event-block" style="top: calc(11.11111111111111% + 2px); height: calc(22.22222222222222% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE2191</div>
                 <span class="type-badge">Practical</span>
@@ -337,7 +369,7 @@
             <div class="ev-subtitle" title="Prof Jurgen Neuberg">Prof Jurgen Neuberg</div>
         </div>
         
-        <div class="event-block" style="top: 377.0px; height: 146.0px;">
+        <div class="event-block" style="top: calc(55.55555555555556% + 2px); height: calc(22.22222222222222% - 4px);">
             <div class="ev-header-row">
                 <div class="ev-title">SOEE3260</div>
                 <span class="type-badge">Practical</span>
