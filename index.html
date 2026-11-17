@@ -7,12 +7,19 @@
     <style>
         html, body {
             height: 100vh;
+            width: 100vw;
             margin: 0;
-            padding: 10%;
+            padding: 0;
             overflow: hidden;
             background-color: #f1f5f9;
             color: #0f172a;
             font-family: system-ui, -apple-system, sans-serif;
+            box-sizing: border-box;
+        }
+        .screen-buffer {
+            width: 100vw;
+            height: 100vh;
+            padding: 35px;
             box-sizing: border-box;
             display: flex;
             justify-content: center;
@@ -32,7 +39,7 @@
             flex-direction: column;
             border: 1px solid #e2e8f0;
             box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
-            transform: translate(-3px, 3px);
+            transform: translate(14px, -6px);
         }
         .header-container {
             display: flex;
@@ -274,23 +281,24 @@
     </script>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="header-container">
-            <div>
-                <h1>Room 9.156 Availability & Timetable</h1>
-                <div class="sub">School of Earth and Environment — 16 Nov – 20 Nov 2026</div>
-            </div>
-            <div id="live-clock" class="clock">00:00:00</div>
-        </div>
-        
-        <div class="schedule-container">
-            <div class="time-sidebar">
-                <div class="time-header-spacer"></div>
-                <div class="time-labels-body">
-                    <div class="time-label"><span>09:00</span></div><div class="time-label"><span>10:00</span></div><div class="time-label"><span>11:00</span></div><div class="time-label"><span>12:00</span></div><div class="time-label"><span>13:00</span></div><div class="time-label"><span>14:00</span></div><div class="time-label"><span>15:00</span></div><div class="time-label"><span>16:00</span></div><div class="time-label"><span>17:00</span></div>
+    <div class="screen-buffer">
+        <div class="wrapper">
+            <div class="header-container">
+                <div>
+                    <h1>Room 9.156 Availability & Timetable</h1>
+                    <div class="sub">School of Earth and Environment — 16 Nov – 20 Nov 2026</div>
                 </div>
+                <div id="live-clock" class="clock">00:00:00</div>
             </div>
             
+            <div class="schedule-container">
+                <div class="time-sidebar">
+                    <div class="time-header-spacer"></div>
+                    <div class="time-labels-body">
+                        <div class="time-label"><span>09:00</span></div><div class="time-label"><span>10:00</span></div><div class="time-label"><span>11:00</span></div><div class="time-label"><span>12:00</span></div><div class="time-label"><span>13:00</span></div><div class="time-label"><span>14:00</span></div><div class="time-label"><span>15:00</span></div><div class="time-label"><span>16:00</span></div><div class="time-label"><span>17:00</span></div>
+                    </div>
+                </div>
+                
     <div class="day-col" data-day="0">
         <div class="day-header">Monday</div>
         <div class="timeline-body">
@@ -385,6 +393,7 @@
         </div>
     </div>
     
+            </div>
         </div>
     </div>
 </body>
